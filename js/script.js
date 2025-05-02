@@ -1,3 +1,39 @@
+// رابط API الخاص بـ Google Sheets
+const apiUrl = "https://script.google.com/macros/s/AKfycbyY6TWhh1RMfhVKHZbQmRDa24CqqzDD2d10H-M9jRAFJ6wYDG06HrhHV_OwPNPe6QfkeQ/exec";
+
+// جلب البيانات من Google Sheets عبر الـ API
+fetch(apiUrl)
+  .then(response => response.json())
+  .then(data => {
+    console.log(data); // البيانات المسترجعة من الـ Google Sheets
+    // هنا تقدر تتعامل مع البيانات، مثل عرض المخالفات في الموقع
+    displayViolations(data);
+  })
+  .catch(error => {
+    console.error("حدث خطأ في جلب البيانات:", error);
+  });
+
+// دالة لعرض البيانات في الصفحة
+function displayViolations(data) {
+  const resultDiv = document.getElementById("result");
+  let html = "";
+
+  // هنا تعرض البيانات المسترجعة
+  data.forEach(user => {
+    html += `<h2>الاسم: ${user.Name}</h2>`;
+    html += `<p>رقم الهوية: ${user.ID}</p>`;
+    html += `<p>عدد المخالفات: ${user.Violation}</p>`;
+    html += `<p>المبلغ: ${user.Amount} ريال</p>`;
+    html += `<p>الحالة: ${user.Status}</p>`;
+    html += `<p>التاريخ: ${user.Date}</p>`;
+    html += `<hr>`;
+  });
+
+  resultDiv.innerHTML = html;
+}
+
+// وظائف التعامل مع البيانات المحلية
+
 function getUsers() {
   return JSON.parse(localStorage.getItem("users")) || [];
 }
