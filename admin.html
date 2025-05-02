@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <title>لوحة تحكم المدير</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <div class="container">
+    <h1>لوحة تحكم المدير</h1>
+
+    <!-- إضافة مستخدم -->
+    <h2>إضافة مستخدم</h2>
+    <form id="addUserForm">
+      <input type="text" id="userName" placeholder="اسم المستخدم" required />
+      <input type="text" id="userId" placeholder="رقم الهوية" required />
+      <button type="submit">إضافة</button>
+    </form>
+
+    <!-- إضافة مخالفة -->
+    <h2>إضافة مخالفة لمستخدم</h2>
+    <form id="addViolationForm">
+      <input type="text" id="targetId" placeholder="رقم الهوية" required />
+      <input type="text" id="violationReason" placeholder="سبب المخالفة" required />
+      <input type="number" id="violationAmount" placeholder="المبلغ" required />
+      <button type="submit">إضافة المخالفة</button>
+    </form>
+
+    <!-- عرض المستخدمين -->
+    <h2>قائمة المستخدمين</h2>
+    <div id="userList"></div>
+
+    <!-- الطلبات -->
+    <h2>طلبات الامتناع</h2>
+    <div id="requestList"></div>
+  </div>
+
+  <script>
+    function getUsers() {
+      return JSON.parse(localStorage.getItem("users")) || [];
+    }
+
+    function saveUsers(users) {
+      localStorage.setItem("users", JSON.stringify(users));
+    }
+
+    function getRequests() {
+      return JSON.parse(localStorage.getItem("requests")) || [];
+    }
+
+    function saveRequests(requests) {
+      localStorage.setItem("requests", JSON.stringify(requests));
+    }
+
+    function updateUserList() {
+      const users = getUsers();
+      const list = document.getElementById("userList");
+      list.innerHTML = users.map(u => {
+        const vText = u.violations.map(v =>
+          `- ${v.reason} (${v.amount} ريال) - ${v.status}`).join("<br>");
+        return `<div><strong>${u.name}</strong> (${u.id})<br>${vText || "لا توجد مخالفات"}</div><hr>`;
+      }).join("");
+    }
+
+    function updateRequestList() {
+      const requests = getRequests();
+      const list = document.getElementById("requestList");
+      if (requests.length === 0) {
+        list.innerHTML = "<p>لا توجد طلبات.</p>";
+        return;
+      }
+
+      list.innerHTML = requests.map((r, i) => `
+        <div>
+          <strong>${r.userName}</strong> (${r.userId})<br>
+          مخالفة: ${r.reason} - ${r.amount} ريال<br>
+          <strong>الحالة:</strong> ${r.status}<br>
+          <button onclick="approve(${i})">موافقة</button>
+          <button onclick="reject(${i})">رفض</button>
+        </div><hr>
+      `).join("");
+    }
+
+    document.getElementById("addUserForm").addEventListener("submit", function(e) {
+      e.preventDefault();
+      const name = document.getElementById("userName").value;
+      const id = document.getElementById("userId").value;
+
+      let users = getUsers();
+      if (users.find(u => u.id === id)) {
+        alert("المستخدم موجود مسبقًا.");
+        return;
+      }
+
+      users.push({ name, id, violations: [] });
+      saveUsers(users);
+      updateUserList();
+      this.reset();
+    });
+
+    document.getElementById("addViolationForm").addEventListener("submit", function(e) {
+      e.preventDefault();
+      const id = document.getElementById("targetId").value;
+      const reason = document.getElementById("violationReason").value;
+      const amount = parseFloat(document.getElementById("violationAmount").value);
+
+      let users = getUsers();
+      const user = users.find(u => u.id === id);
+      if (!user) {
+        alert("المستخدم غير موجود.");
+        return;
+      }
+
+      user.violations.push({
+        reason,
+        amount,
+        status: "غير مدفوعة",
+        date: new Date().toLocaleDateString()
+      });
+
+      saveUsers(users);
+      updateUserList();
+      this.reset();
+    });
+
+    function approve(index) {
+      let requests = getRequests();
+      let users = getUsers();
+      const r = requests[index];
+      const user = users.find(u => u.id === r.userId);
+      if (user) {
+        user.violations[r.violationIndex].status = "تم الإعفاء";
+        saveUsers(users);
+      }
+      requests.splice(index, 1);
+      saveRequests(requests);
+      updateUserList();
+      updateRequestList();
+    }
+
+    function reject(index) {
+      let requests = getRequests();
+      requests.splice(index, 1);
+      saveRequests(requests);
+      updateRequestList();
+    }
+
+    updateUserList();
+    updateRequestList();
+  </script>
+</body>
+</html>
