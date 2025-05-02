@@ -9,48 +9,69 @@
   <div class="container">
     <h1>لوحة التحكم - المدير</h1>
 
-    <h2>إضافة مخالفة جديدة</h2>
-    <form id="addForm">
+    <!-- إضافة مستخدم -->
+    <h2>إضافة مستخدم جديد</h2>
+    <form id="addUserForm">
       <label>رقم الهوية:</label>
-      <input type="text" id="addId" required />
+      <input type="text" id="userId" required />
 
-      <label>سبب المخالفة:</label>
-      <input type="text" id="reason" required />
+      <label>الاسم الكامل:</label>
+      <input type="text" id="userName" required />
 
-      <label>المبلغ:</label>
-      <input type="number" id="amount" required />
-
-      <button type="submit">إضافة المخالفة</button>
+      <button type="submit">إضافة المستخدم</button>
     </form>
 
     <hr />
 
-    <h2>كل المستخدمين والمخالفات</h2>
-    <button onclick="loadUsers()">عرض البيانات</button>
-    <div id="usersList"></div>
+    <!-- عرض المستخدمين -->
+    <h2>قائمة المستخدمين</h2>
+    <button onclick="loadUsers()">عرض</button>
+    <div id="userList"></div>
   </div>
 
   <script>
-    function loadUsers() {
-      fetch("../data/users.json")
-        .then(res => res.json())
-        .then(data => {
-          let html = "";
-          data.forEach(user => {
-            html += `<h3>هوية: ${user.id}</h3><ul>`;
-            user.violations.forEach(v => {
-              html += `<li>${v.reason} - ${v.amount} ريال (${v.status})</li>`;
-            });
-            html += "</ul><hr>";
-          });
-          document.getElementById("usersList").innerHTML = html;
-        });
+    // تحميل المستخدمين من localStorage
+    function getUsers() {
+      return JSON.parse(localStorage.getItem("users")) || [];
     }
 
-    document.getElementById("addForm").addEventListener("submit", function(e) {
+    // حفظ المستخدمين في localStorage
+    function saveUsers(users) {
+      localStorage.setItem("users", JSON.stringify(users));
+    }
+
+    // إضافة مستخدم جديد
+    document.getElementById("addUserForm").addEventListener("submit", function(e) {
       e.preventDefault();
-      alert("تمت الإضافة (مؤقتًا فقط - بدون قاعدة بيانات حقيقية).");
+      const id = document.getElementById("userId").value;
+      const name = document.getElementById("userName").value;
+
+      let users = getUsers();
+
+      // التحقق إذا المستخدم موجود مسبقاً
+      if (users.find(u => u.id === id)) {
+        alert("المستخدم موجود مسبقاً.");
+        return;
+      }
+
+      users.push({ id, name, violations: [] });
+      saveUsers(users);
+
+      alert("تمت إضافة المستخدم.");
+      document.getElementById("addUserForm").reset();
     });
+
+    // عرض المستخدمين
+    function loadUsers() {
+      const users = getUsers();
+      let html = "";
+
+      users.forEach(user => {
+        html += `<h3>الاسم: ${user.name}</h3><p>رقم الهوية: ${user.id}</p><hr>`;
+      });
+
+      document.getElementById("userList").innerHTML = html || "<p>لا يوجد مستخدمون.</p>";
+    }
   </script>
 </body>
 </html>
