@@ -1,0 +1,25 @@
+body {
+  font-family: 'Tahoma', sans-serif;
+  background-color: #f4f4f4;
+  text-align: center;
+  direction: rtl;
+}
+
+.container {
+  max-width: 600px;
+  margin: 50px auto;
+  background-color: white;
+  padding: 20px;
+  border-radius: 10px;
+}
+
+input, button {
+  padding: 10px;
+  margin: 10px 0;
+  width: 100%;
+}
+
+#violations {
+  margin-top: 20px;
+  text-align: right;
+}
