@@ -1,134 +1,32 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="ar">
 <head>
-  <meta charset="UTF-8" />
-  <title>استعلام عن المخالفات</title>
-  <link rel="stylesheet" href="css/style.css" />
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>صفحة المستخدم</title>
+  <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-  <div class="container">
-    <h1>الاستعلام عن المخالفات</h1>
 
-    <!-- إدخال رقم الهوية -->
-    <form id="searchForm">
-      <label>رقم الهوية:</label>
-      <input type="text" id="identityInput" required />
-      <button type="submit">عرض المخالفات</button>
-    </form>
-
-    <!-- النتائج -->
-    <div id="result" style="margin-top: 20px;"></div>
-
-    <!-- زر تحميل PDF -->
-    <button id="downloadBtn" style="display:none; margin-top:10px;">تحميل كشف PDF</button>
+  <!-- نموذج دخول حساب المدير -->
+  <div id="loginContainer" style="text-align: center; margin-top: 10px;">
+    <label for="adminPassword">دخول حساب المدير:</label>
+    <input type="password" id="adminPassword" placeholder="أدخل كلمة السر" />
+    <button onclick="checkPassword()">دخول</button>
   </div>
 
-  <script>
-  function getUsers() {
-    return JSON.parse(localStorage.getItem("users")) || [];
-  }
+  <h1>مرحبًا بك في صفحة المستخدم</h1>
 
-  function saveUsers(users) {
-    localStorage.setItem("users", JSON.stringify(users));
-  }
+  <form id="searchForm">
+    <label for="identityInput">رقم الهوية:</label>
+    <input type="text" id="identityInput" required placeholder="أدخل رقم الهوية" />
+    <button type="submit">البحث</button>
+  </form>
 
-  function getRequests() {
-    return JSON.parse(localStorage.getItem("requests")) || [];
-  }
+  <div id="result"></div>
 
-  function saveRequests(requests) {
-    localStorage.setItem("requests", JSON.stringify(requests));
-  }
+  <button id="downloadBtn" style="display: none;">تحميل كشف المخالفات</button>
 
-  let currentUser = null;
-
-  document.getElementById("searchForm").addEventListener("submit", function(e) {
-    e.preventDefault();
-    const id = document.getElementById("identityInput").value;
-    const users = getUsers();
-    const user = users.find(u => u.id === id);
-
-    const resultDiv = document.getElementById("result");
-    const downloadBtn = document.getElementById("downloadBtn");
-
-    if (!user) {
-      resultDiv.innerHTML = "<p style='color:red;'>لم يتم العثور على مستخدم بهذا الرقم.</p>";
-      downloadBtn.style.display = "none";
-      return;
-    }
-
-    currentUser = user;
-    let html = `<h2>الاسم: ${user.name}</h2>`;
-    if (user.violations.length === 0) {
-      html += "<p>لا توجد مخالفات.</p>";
-      downloadBtn.style.display = "none";
-    } else {
-      html += "<ul>";
-      user.violations.forEach((v, i) => {
-        html += `<li>
-          <strong>السبب:</strong> ${v.reason} | 
-          <strong>المبلغ:</strong> ${v.amount} ريال | 
-          <strong>الحالة:</strong> ${v.status} | 
-          <strong>التاريخ:</strong> ${v.date}
-          ${v.status === "غير مدفوعة" ? ` | <button onclick="submitRequest(${i})">طلب امتناع</button>` : ""}
-        </li>`;
-      });
-      html += "</ul>";
-      downloadBtn.style.display = "inline-block";
-    }
-
-    resultDiv.innerHTML = html;
-  });
-
-  // تحميل PDF
-  document.getElementById("downloadBtn").addEventListener("click", function () {
-    if (!currentUser) return;
-
-    const { jsPDF } = window.jspdf;
-    const doc = new jsPDF();
-    doc.setFont("Arial");
-
-    doc.text(`كشف المخالفات`, 105, 20, null, null, "center");
-    doc.text(`الاسم: ${currentUser.name}`, 20, 30);
-    doc.text(`رقم الهوية: ${currentUser.id}`, 20, 38);
-
-    let y = 50;
-    currentUser.violations.forEach((v, i) => {
-      doc.text(`مخالفة ${i + 1}:`, 20, y);
-      y += 8;
-      doc.text(`- السبب: ${v.reason}`, 25, y); y += 8;
-      doc.text(`- المبلغ: ${v.amount} ريال`, 25, y); y += 8;
-      doc.text(`- الحالة: ${v.status}`, 25, y); y += 8;
-      doc.text(`- التاريخ: ${v.date}`, 25, y); y += 12;
-    });
-
-    doc.save("كشف_المخالفات.pdf");
-  });
-
-  // إرسال طلب امتناع
-  function submitRequest(violationIndex) {
-    const requests = getRequests();
-
-    const existing = requests.find(r => r.userId === currentUser.id && r.violationIndex === violationIndex);
-    if (existing) {
-      alert("تم إرسال طلب لهذه المخالفة مسبقًا.");
-      return;
-    }
-
-    requests.push({
-      userId: currentUser.id,
-      userName: currentUser.name,
-      violationIndex,
-      reason: currentUser.violations[violationIndex].reason,
-      amount: currentUser.violations[violationIndex].amount,
-      status: "قيد المراجعة",
-      date: new Date().toLocaleDateString()
-    });
-
-    saveRequests(requests);
-    alert("تم إرسال طلب الامتناع. سيتم مراجعته من قبل الإدارة.");
-  }
-</script>
+  <script src="js/script.js"></script>
 </body>
 </html>
