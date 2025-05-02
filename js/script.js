@@ -107,10 +107,14 @@ function submitRequest(violationIndex) {
 function checkPassword() {
   const password = document.getElementById("adminPassword").value;
 
-  // تحقق من كلمة السر
   if (password === "Dox@143") {
     window.location.href = "admin.html"; // تحويل إلى صفحة المدير
   } else {
     alert("كلمة السر خاطئة، حاول مرة أخرى.");
   }
+}
+
+// تبديل بين الوضع الليلي والصباحي
+function toggleMode() {
+  document.body.classList.toggle("night-mode");
 }
