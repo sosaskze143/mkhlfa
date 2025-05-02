@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <title>لوحة التحكم - المدير</title>
+  <link rel="stylesheet" href="../css/style.css" />
+</head>
+<body>
+  <div class="container">
+    <h1>لوحة التحكم - المدير</h1>
+
+    <h2>إضافة مخالفة جديدة</h2>
+    <form id="addForm">
+      <label>رقم الهوية:</label>
+      <input type="text" id="addId" required />
+
+      <label>سبب المخالفة:</label>
+      <input type="text" id="reason" required />
+
+      <label>المبلغ:</label>
+      <input type="number" id="amount" required />
+
+      <button type="submit">إضافة المخالفة</button>
+    </form>
+
+    <hr />
+
+    <h2>كل المستخدمين والمخالفات</h2>
+    <button onclick="loadUsers()">عرض البيانات</button>
+    <div id="usersList"></div>
+  </div>
+
+  <script>
+    function loadUsers() {
+      fetch("../data/users.json")
+        .then(res => res.json())
+        .then(data => {
+          let html = "";
+          data.forEach(user => {
+            html += `<h3>هوية: ${user.id}</h3><ul>`;
+            user.violations.forEach(v => {
+              html += `<li>${v.reason} - ${v.amount} ريال (${v.status})</li>`;
+            });
+            html += "</ul><hr>";
+          });
+          document.getElementById("usersList").innerHTML = html;
+        });
+    }
+
+    document.getElementById("addForm").addEventListener("submit", function(e) {
+      e.preventDefault();
+      alert("تمت الإضافة (مؤقتًا فقط - بدون قاعدة بيانات حقيقية).");
+    });
+  </script>
+</body>
+</html>
