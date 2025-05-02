@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <title>استعلام عن المخالفات</title>
   <link rel="stylesheet" href="css/style.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </head>
 <body>
   <div class="container">
@@ -18,12 +19,17 @@
 
     <!-- النتائج -->
     <div id="result" style="margin-top: 20px;"></div>
+
+    <!-- زر تحميل PDF -->
+    <button id="downloadBtn" style="display:none; margin-top:10px;">تحميل كشف PDF</button>
   </div>
 
   <script>
     function getUsers() {
       return JSON.parse(localStorage.getItem("users")) || [];
     }
+
+    let currentUser = null;
 
     document.getElementById("searchForm").addEventListener("submit", function(e) {
       e.preventDefault();
@@ -32,18 +38,22 @@
       const user = users.find(u => u.id === id);
 
       const resultDiv = document.getElementById("result");
+      const downloadBtn = document.getElementById("downloadBtn");
 
       if (!user) {
         resultDiv.innerHTML = "<p style='color:red;'>لم يتم العثور على مستخدم بهذا الرقم.</p>";
+        downloadBtn.style.display = "none";
         return;
       }
 
+      currentUser = user;
       let html = `<h2>الاسم: ${user.name}</h2>`;
       if (user.violations.length === 0) {
         html += "<p>لا توجد مخالفات.</p>";
+        downloadBtn.style.display = "none";
       } else {
         html += "<ul>";
-        user.violations.forEach((v, i) => {
+        user.violations.forEach((v) => {
           html += `<li>
             <strong>السبب:</strong> ${v.reason} | 
             <strong>المبلغ:</strong> ${v.amount} ريال | 
@@ -52,9 +62,35 @@
           </li>`;
         });
         html += "</ul>";
+        downloadBtn.style.display = "inline-block";
       }
 
       resultDiv.innerHTML = html;
+    });
+
+    // تحميل PDF
+    document.getElementById("downloadBtn").addEventListener("click", function () {
+      if (!currentUser) return;
+
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF();
+      doc.setFont("Arial");
+
+      doc.text(`كشف المخالفات`, 105, 20, null, null, "center");
+      doc.text(`الاسم: ${currentUser.name}`, 20, 30);
+      doc.text(`رقم الهوية: ${currentUser.id}`, 20, 38);
+
+      let y = 50;
+      currentUser.violations.forEach((v, i) => {
+        doc.text(`مخالفة ${i + 1}:`, 20, y);
+        y += 8;
+        doc.text(`- السبب: ${v.reason}`, 25, y); y += 8;
+        doc.text(`- المبلغ: ${v.amount} ريال`, 25, y); y += 8;
+        doc.text(`- الحالة: ${v.status}`, 25, y); y += 8;
+        doc.text(`- التاريخ: ${v.date}`, 25, y); y += 12;
+      });
+
+      doc.save("كشف_المخالفات.pdf");
     });
   </script>
 </body>
