@@ -44,7 +44,7 @@ document.getElementById("searchForm").addEventListener("submit", function(e) {
         <strong>المبلغ:</strong> ${v.amount} ريال | 
         <strong>الحالة:</strong> ${v.status} | 
         <strong>التاريخ:</strong> ${v.date}
-        ${v.status === "غير مدفوعة" ? ` | <button onclick="submitRequest(${i})">طلب امتناع</button>` : ""}
+        ${v.status === "غير مدفوعة" ? ` | <button onclick="submitRequest(${i})">طلب امتناع</button> | <button onclick="markPaid(${i})">تحديد الدفع</button>` : ""}
       </li>`;
     });
     html += "</ul>";
@@ -79,8 +79,14 @@ document.getElementById("downloadBtn").addEventListener("click", function () {
   doc.save("كشف_المخالفات.pdf");
 });
 
-// إرسال طلب امتناع
+// إرسال طلب امتناع مع إضافة سبب
 function submitRequest(violationIndex) {
+  const reason = prompt("أدخل سبب طلب الامتناع:");
+  if (!reason) {
+    alert("السبب مطلوب!");
+    return;
+  }
+
   const requests = getRequests();
 
   const existing = requests.find(r => r.userId === currentUser.id && r.violationIndex === violationIndex);
@@ -93,8 +99,7 @@ function submitRequest(violationIndex) {
     userId: currentUser.id,
     userName: currentUser.name,
     violationIndex,
-    reason: currentUser.violations[violationIndex].reason,
-    amount: currentUser.violations[violationIndex].amount,
+    reason: reason,
     status: "قيد المراجعة",
     date: new Date().toLocaleDateString()
   });
@@ -103,18 +108,17 @@ function submitRequest(violationIndex) {
   alert("تم إرسال طلب الامتناع. سيتم مراجعته من قبل الإدارة.");
 }
 
-// التحقق من كلمة السر للدخول إلى صفحة المدير
-function checkPassword() {
-  const password = document.getElementById("adminPassword").value;
-
-  if (password === "Dox@143") {
-    window.location.href = "admin.html"; // تحويل إلى صفحة المدير
-  } else {
-    alert("كلمة السر خاطئة، حاول مرة أخرى.");
+// تغيير حالة الدفع للمخالفة
+function markPaid(violationIndex) {
+  const paymentAmount = prompt("أدخل المبلغ المدفوع (جزئي أو كامل):");
+  if (!paymentAmount || isNaN(paymentAmount) || paymentAmount <= 0) {
+    alert("المبلغ المدفوع غير صحيح.");
+    return;
   }
-}
 
-// تبديل بين الوضع الليلي والصباحي
-function toggleMode() {
-  document.body.classList.toggle("night-mode");
+  currentUser.violations[violationIndex].status = "مدفوعة";
+  currentUser.violations[violationIndex].paymentAmount = paymentAmount;
+
+  saveUsers(getUsers());
+  alert("تم تحديث حالة المخالفة.");
 }
