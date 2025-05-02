@@ -2,22 +2,60 @@
 <html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>إدارة المخالفات - المستخدم</title>
+  <title>استعلام عن المخالفات</title>
   <link rel="stylesheet" href="css/style.css" />
 </head>
 <body>
   <div class="container">
-    <h1>نظام إدارة المخالفات</h1>
-    <form id="checkForm">
-      <label for="idNumber">رقم الهوية:</label>
-      <input type="text" id="idNumber" required />
+    <h1>الاستعلام عن المخالفات</h1>
+
+    <!-- إدخال رقم الهوية -->
+    <form id="searchForm">
+      <label>رقم الهوية:</label>
+      <input type="text" id="identityInput" required />
       <button type="submit">عرض المخالفات</button>
     </form>
 
-    <div id="violations"></div>
+    <!-- النتائج -->
+    <div id="result" style="margin-top: 20px;"></div>
   </div>
 
-  <script src="js/script.js"></script>
+  <script>
+    function getUsers() {
+      return JSON.parse(localStorage.getItem("users")) || [];
+    }
+
+    document.getElementById("searchForm").addEventListener("submit", function(e) {
+      e.preventDefault();
+      const id = document.getElementById("identityInput").value;
+      const users = getUsers();
+      const user = users.find(u => u.id === id);
+
+      const resultDiv = document.getElementById("result");
+
+      if (!user) {
+        resultDiv.innerHTML = "<p style='color:red;'>لم يتم العثور على مستخدم بهذا الرقم.</p>";
+        return;
+      }
+
+      let html = `<h2>الاسم: ${user.name}</h2>`;
+      if (user.violations.length === 0) {
+        html += "<p>لا توجد مخالفات.</p>";
+      } else {
+        html += "<ul>";
+        user.violations.forEach((v, i) => {
+          html += `<li>
+            <strong>السبب:</strong> ${v.reason} | 
+            <strong>المبلغ:</strong> ${v.amount} ريال | 
+            <strong>الحالة:</strong> ${v.status} | 
+            <strong>التاريخ:</strong> ${v.date}
+          </li>`;
+        });
+        html += "</ul>";
+      }
+
+      resultDiv.innerHTML = html;
+    });
+  </script>
 </body>
 </html>
