@@ -1,25 +1,70 @@
+/* css/style.css */
 body {
-  font-family: 'Tahoma', sans-serif;
-  background-color: #f4f4f4;
-  text-align: center;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background: #f0f2f5;
+  margin: 0;
+  padding: 30px;
   direction: rtl;
 }
 
-.container {
+.container, form {
   max-width: 600px;
-  margin: 50px auto;
-  background-color: white;
-  padding: 20px;
-  border-radius: 10px;
+  margin: auto;
+  background: #fff;
+  padding: 25px;
+  border-radius: 8px;
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
 }
 
-input, button {
-  padding: 10px;
-  margin: 10px 0;
+h1, h2 {
+  text-align: center;
+  color: #222;
+}
+
+label {
+  font-weight: bold;
+  margin-bottom: 5px;
+  display: block;
+}
+
+input[type="text"], input[type="number"], select {
+  width: 100%;
+  padding: 12px;
+  margin-bottom: 15px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  box-sizing: border-box;
+}
+
+button {
+  background-color: #0d6efd;
+  color: white;
+  padding: 12px;
+  border: none;
+  border-radius: 6px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: 0.3s ease;
   width: 100%;
 }
 
-#violations {
+button:hover {
+  background-color: #0a58ca;
+}
+
+ul {
+  list-style: none;
+  padding: 0;
+}
+
+li {
+  background-color: #e9f5ff;
+  padding: 15px;
+  margin-bottom: 10px;
+  border-radius: 6px;
+  border: 1px solid #b3d7ff;
+}
+
+#downloadBtn {
   margin-top: 20px;
-  text-align: right;
 }
