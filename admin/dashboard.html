@@ -23,6 +23,23 @@
 
     <hr />
 
+    <!-- إضافة مخالفة -->
+    <h2>إضافة مخالفة</h2>
+    <form id="addViolationForm">
+      <label>اختر المستخدم:</label>
+      <select id="violationUserSelect" required></select>
+
+      <label>سبب المخالفة:</label>
+      <input type="text" id="violationReason" required />
+
+      <label>المبلغ (ريال):</label>
+      <input type="number" id="violationAmount" required />
+
+      <button type="submit">إضافة المخالفة</button>
+    </form>
+
+    <hr />
+
     <!-- عرض المستخدمين -->
     <h2>قائمة المستخدمين</h2>
     <button onclick="loadUsers()">عرض</button>
@@ -59,6 +76,45 @@
 
       alert("تمت إضافة المستخدم.");
       document.getElementById("addUserForm").reset();
+      updateUserSelect(); // تحديث القائمة
+    });
+
+    // تعبئة قائمة المستخدمين في select
+    function updateUserSelect() {
+      const users = getUsers();
+      const select = document.getElementById("violationUserSelect");
+      select.innerHTML = "";
+
+      users.forEach(user => {
+        const option = document.createElement("option");
+        option.value = user.id;
+        option.textContent = `${user.name} - ${user.id}`;
+        select.appendChild(option);
+      });
+    }
+
+    // إضافة مخالفة
+    document.getElementById("addViolationForm").addEventListener("submit", function(e) {
+      e.preventDefault();
+      const userId = document.getElementById("violationUserSelect").value;
+      const reason = document.getElementById("violationReason").value;
+      const amount = parseFloat(document.getElementById("violationAmount").value);
+
+      let users = getUsers();
+      let user = users.find(u => u.id === userId);
+
+      if (user) {
+        user.violations.push({
+          reason,
+          amount,
+          status: "غير مدفوعة",
+          date: new Date().toLocaleDateString()
+        });
+
+        saveUsers(users);
+        alert("تمت إضافة المخالفة.");
+        document.getElementById("addViolationForm").reset();
+      }
     });
 
     // عرض المستخدمين
@@ -67,11 +123,18 @@
       let html = "";
 
       users.forEach(user => {
-        html += `<h3>الاسم: ${user.name}</h3><p>رقم الهوية: ${user.id}</p><hr>`;
+        html += `<h3>الاسم: ${user.name}</h3><p>رقم الهوية: ${user.id}</p><ul>`;
+        user.violations.forEach(v => {
+          html += `<li>السبب: ${v.reason} | المبلغ: ${v.amount} | الحالة: ${v.status} | التاريخ: ${v.date}</li>`;
+        });
+        html += "</ul><hr>";
       });
 
       document.getElementById("userList").innerHTML = html || "<p>لا يوجد مستخدمون.</p>";
     }
+
+    // تحديث السلكت عند تحميل الصفحة
+    updateUserSelect();
   </script>
 </body>
 </html>
