@@ -1,10 +1,9 @@
-/* css/style.css */
+/* تحسينات التصميم لجعل الصفحة متجاوبة */
 
-/* الأساسيات */
 body {
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   margin: 0;
-  padding: 30px;
+  padding: 20px;
   direction: rtl;
   background-color: #f0f2f5;
   color: #222;
@@ -26,13 +25,13 @@ body.night-mode {
   box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
 }
 
-/* تنسيق الأزرار */
+/* الأزرار */
 button {
   background-color: #0d6efd;
   color: white;
   padding: 12px;
   border: none;
-  border-radius: 20px; /* جعل الأزرار دائرية من الجوانب */
+  border-radius: 20px;
   font-size: 16px;
   cursor: pointer;
   transition: 0.3s ease;
@@ -47,9 +46,8 @@ button:active {
   background-color: #004085;
 }
 
-/* زر الوضع الليلي */
 #toggleModeBtn {
-  background-color: #28a745; /* أخضر */
+  background-color: #28a745;
   color: white;
   padding: 12px;
   border: none;
@@ -62,6 +60,11 @@ button:active {
 
 #toggleModeBtn:hover {
   background-color: #218838;
+}
+
+/* حواف الأزرار المستديرة */
+button {
+  border-radius: 25px;
 }
 
 ul {
@@ -81,7 +84,7 @@ li {
   margin-top: 20px;
 }
 
-/* تنسيق نموذج دخول المدير */
+/* نموذج دخول المدير */
 #loginContainer {
   position: absolute;
   top: 10px;
@@ -112,4 +115,29 @@ li {
 
 #loginContainer button:hover {
   background-color: #0a58ca;
+}
+
+/* استجابة التصميم */
+@media screen and (max-width: 768px) {
+  .container, form {
+    width: 90%;
+  }
+
+  #toggleModeBtn {
+    width: 100%;
+  }
+
+  button {
+    width: 100%;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  body {
+    padding: 10px;
+  }
+
+  h1 {
+    font-size: 24px;
+  }
 }
